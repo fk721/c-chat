@@ -4,6 +4,11 @@
 #include <ncurses.h>
 
 /* Global Variables */
+extern WINDOW *USER_INPUT_WINDOW_OUT;
+extern WINDOW *CHAT_WINDOW_OUT;
+extern WINDOW *ERROR_WINDOW_OUT;
+extern WINDOW *STATUS_WINDOW_OUT;
+
 extern WINDOW *USER_INPUT_WINDOW;
 extern WINDOW *CHAT_WINDOW;
 extern WINDOW *ERROR_WINDOW;

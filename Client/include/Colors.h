@@ -21,6 +21,8 @@
 #define BLACK_ON_GREY       12
 #define WHITE_ON_BLUISH     13
 #define BLACK_ON_BLUISH     14
+#define GREY_ON_BLACK       15
+#define BLUISH_ON_BLACK     16
 
 
 #define INIT_COLOR_PAIRS \
@@ -39,6 +41,8 @@
     init_pair(WHITE_ON_GREY, COLOR_WHITE, COLOR_GREY); \
     init_pair(BLACK_ON_GREY, COLOR_BLACK, COLOR_GREY); \
     init_pair(BLACK_ON_BLUISH, COLOR_BLACK, COLOR_BLUISH); \
-    init_pair(WHITE_ON_BLUISH, COLOR_WHITE, COLOR_BLUISH);
+    init_pair(WHITE_ON_BLUISH, COLOR_WHITE, COLOR_BLUISH); \
+    init_pair(GREY_ON_BLACK, COLOR_GREY, COLOR_BLACK); \
+    init_pair(BLUISH_ON_BLACK, COLOR_BLUISH, COLOR_BLACK); 
 
 #endif

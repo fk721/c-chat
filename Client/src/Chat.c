@@ -15,6 +15,11 @@
 #include "Colors.h"
 
 /* Global Variables */
+WINDOW *USER_INPUT_WINDOW_OUT;
+WINDOW *CHAT_WINDOW_OUT;
+WINDOW *ERROR_WINDOW_OUT;
+WINDOW *STATUS_WINDOW_OUT;
+
 WINDOW *USER_INPUT_WINDOW;
 WINDOW *CHAT_WINDOW;
 WINDOW *ERROR_WINDOW;
@@ -59,7 +64,7 @@ void run_c_chat(int argc, char **argv) {
     connectToServer(port_number);
     write(sockfd, client_name, strlen(client_name));
     int chat_window_max_height = Y_MAX_SIZE * MAX_CHAT_PROP_H;
-    move(chat_window_max_height, 0);
+    move(chat_window_max_height + 1, 1);
     refresh();
     chat(client_name);
 }
@@ -68,6 +73,8 @@ void run_c_chat(int argc, char **argv) {
 void init_windows() {
     // Get current size of the screen/terminal
     getmaxyx(stdscr, Y_MAX_SIZE, X_MAX_SIZE);
+
+    // Need to figure out the "outter" boxes first"
     
     int chat_window_max_height = Y_MAX_SIZE * MAX_CHAT_PROP_H;
     int chat_window_max_width  = X_MAX_SIZE * MAX_CHAT_PROP_W;
@@ -75,19 +82,45 @@ void init_windows() {
     int input_window_max_height = Y_MAX_SIZE * MAX_INPUT_PROP_H;
     int error_window_max_height = Y_MAX_SIZE - chat_window_max_height - input_window_max_height;
 
-    CHAT_WINDOW = newwin(chat_window_max_height, chat_window_max_width, 0, 0);
-    STATUS_WINDOW = newwin(chat_window_max_height, status_window_max_width, 0, chat_window_max_width);
-    USER_INPUT_WINDOW = newwin(input_window_max_height, X_MAX_SIZE, chat_window_max_height, 0);
-    ERROR_WINDOW = newwin(error_window_max_height, X_MAX_SIZE, chat_window_max_height + input_window_max_height, 0);
+    CHAT_WINDOW_OUT = newwin(chat_window_max_height, chat_window_max_width, 0, 0);
+    STATUS_WINDOW_OUT = newwin(chat_window_max_height, status_window_max_width, 0, chat_window_max_width);
+    USER_INPUT_WINDOW_OUT = newwin(input_window_max_height, X_MAX_SIZE, chat_window_max_height, 0);
+    ERROR_WINDOW_OUT = newwin(error_window_max_height, X_MAX_SIZE, chat_window_max_height + input_window_max_height, 0);
     
-    // box(CHAT_WINDOW, 0, 0);
-    // box(STATUS_WINDOW, 0, 0);
-    // box(USER_INPUT_WINDOW, 0, 0);
-    // box(ERROR_WINDOW, 0, 0);
-    
-    wbkgd(CHAT_WINDOW, COLOR_PAIR(WHITE_ON_BLUISH));
-    wbkgd(STATUS_WINDOW, COLOR_PAIR(GREEN_ON_BLACK));
-    wbkgd(USER_INPUT_WINDOW, COLOR_PAIR(WHITE_ON_GREY));
+    box(CHAT_WINDOW_OUT, 0, 0);
+    box(STATUS_WINDOW_OUT, 0, 0);
+    box(USER_INPUT_WINDOW_OUT, 0, 0);
+    box(ERROR_WINDOW_OUT, 0, 0);
+
+    wbkgd(CHAT_WINDOW_OUT, COLOR_PAIR(BLUISH_ON_BLACK));
+    wbkgd(STATUS_WINDOW_OUT, COLOR_PAIR(GREY_ON_BLACK));
+    wbkgd(USER_INPUT_WINDOW_OUT, COLOR_PAIR(GREEN_ON_BLACK));
+    wbkgd(ERROR_WINDOW_OUT, COLOR_PAIR(RED_ON_BLACK));
+
+    wrefresh(CHAT_WINDOW_OUT);
+    wrefresh(STATUS_WINDOW_OUT);
+    wrefresh(USER_INPUT_WINDOW_OUT);
+    wrefresh(ERROR_WINDOW_OUT);
+
+    refresh();
+
+    // Now the inner boxes, which are offset by 1
+    int chat_window_y, chat_window_x, status_window_y, status_window_x, user_input_window_y, user_input_window_x,
+    error_window_y, error_window_x;
+
+    getmaxyx(CHAT_WINDOW_OUT, chat_window_y, chat_window_x);
+    getmaxyx(STATUS_WINDOW_OUT, status_window_y, status_window_x);
+    getmaxyx(USER_INPUT_WINDOW_OUT, user_input_window_y, user_input_window_x);
+    getmaxyx(ERROR_WINDOW_OUT, error_window_y, error_window_x);
+
+    CHAT_WINDOW = newwin(chat_window_y - 2, chat_window_x - 2, 1, 1);
+    STATUS_WINDOW = newwin(status_window_y - 2, status_window_x - 2, 1, chat_window_max_width + 1);
+    USER_INPUT_WINDOW = newwin(user_input_window_y - 2, user_input_window_x - 2, chat_window_max_height + 1, 1);
+    ERROR_WINDOW = newwin(error_window_y - 2, error_window_x - 2, chat_window_max_height + input_window_max_height + 1, 1);
+
+    wbkgd(CHAT_WINDOW, COLOR_PAIR(BLUISH_ON_BLACK));
+    wbkgd(STATUS_WINDOW, COLOR_PAIR(GREY_ON_BLACK));
+    wbkgd(USER_INPUT_WINDOW, COLOR_PAIR(GREEN_ON_BLACK));
     wbkgd(ERROR_WINDOW, COLOR_PAIR(RED_ON_BLACK));
 
     scrollok(CHAT_WINDOW, true);
@@ -100,7 +133,6 @@ void init_windows() {
     wrefresh(USER_INPUT_WINDOW);
     wrefresh(ERROR_WINDOW);
 
-    // move(chat_window_max_height + 1, 1);
     refresh();
 }
 
@@ -162,7 +194,7 @@ void chat(char* username) {
     int n;
     int chat_window_max_height = Y_MAX_SIZE * MAX_CHAT_PROP_H;
     while (1) {
-        move(chat_window_max_height, 0);
+        move(chat_window_max_height + 1, 1);
         refresh();
         // Set up our set of file descriptiors
         FD_ZERO(&fds);
@@ -202,7 +234,7 @@ void chat(char* username) {
                 }
             }
 
-            move(chat_window_max_height, 0);
+            move(chat_window_max_height + 1, 1);
 
             // Clear our buffer
             memset(buffer, 0, BUFFSIZE);
@@ -275,6 +307,10 @@ void clean() {
 
 void cleanup_windows() {
     getch();
+    delwin(CHAT_WINDOW_OUT);
+    delwin(STATUS_WINDOW_OUT);
+    delwin(USER_INPUT_WINDOW_OUT);
+    delwin(ERROR_WINDOW_OUT);
     delwin(CHAT_WINDOW);
     delwin(STATUS_WINDOW);
     delwin(USER_INPUT_WINDOW);
