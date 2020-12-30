@@ -12,12 +12,12 @@ make
 ### Running
 Start the server:
 ```bash
-./build/bin/c-server
+./bin/c-server
 ```
 
 Start a client(s):
 ```bash
-./build/bin/c-server USERNAME
+./bin/c-chat USERNAME
 ```
 <p align="center">
     <img src="assets/c-chat.gif">
